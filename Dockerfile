@@ -1,6 +1,6 @@
 FROM golang:1
 
-# Configure to reduce warnings and limitations as instruction from official VSCode Remote-Containers.
+# Configure to avoid build warnings and errors as described in official VSCode Remote-Containers extension documentation.
 # See https://code.visualstudio.com/docs/remote/containers-advanced#_reducing-dockerfile-build-warnings.
 ENV DEBIAN_FRONTEND=noninteractive
 RUN apt-get update \
@@ -9,14 +9,15 @@ RUN apt-get update \
 # Verify git, process tools, lsb-release (common in install instructions for CLIs) installed.
 RUN apt-get -y install git iproute2 procps lsb-release
 
-# Install Go tools.
+# Install essential tools for Go development.
 RUN apt-get update \
-    # Install gocode-gomod.
+    # Install https://github.com/stamblerre/gocode as gocode-gomod (required by VSCode Go extension).
     && go get -x -d github.com/stamblerre/gocode 2>&1 \
     && go build -o gocode-gomod github.com/stamblerre/gocode \
     && mv gocode-gomod $GOPATH/bin/ \
-    # Install other tools.
+    # Install other essential Go packages and tools.
     && go get -u -v \
+        github.com/golang/dep/cmd/dep \
         golang.org/x/tools/cmd/gopls \
         github.com/mdempsky/gocode \
         github.com/uudashr/gopkgs/cmd/gopkgs \
@@ -34,7 +35,7 @@ RUN apt-get update \
     && apt-get clean -y \
     && rm -rf /var/lib/apt/lists/*
 
-# Revert workaround at top layer.
+# Revert configurations that was set at top layer (for avoiding build warnings and errors).
 ENV DEBIAN_FRONTEND=dialog
 
 # Expose service ports.

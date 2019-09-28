@@ -1,0 +1,6 @@
+{
+    "files.exclude": {
+        "Gopkg.lock": true,
+        "vendor": true
+    }
+}
